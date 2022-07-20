@@ -11,6 +11,9 @@ body {
 
 .bg-rrinput {
   background: #24344d !important;
+  &-center {
+    text-align:center;
+  }
 }
 
 .rr-qb {

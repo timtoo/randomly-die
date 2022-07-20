@@ -113,7 +113,7 @@ export default defineComponent({
       dense
       label="Min"
       v-model="min"
-      input-class="text-rrinput"
+      input-class="text-rrinput text-rrinput-center"
       class="bg-rrinput"
       label-color="primary"
       @update:model-value="handleMinMaxDice('min')"
@@ -125,7 +125,7 @@ export default defineComponent({
       dense
       label="Max"
       v-model="max"
-      input-class="text-rrinput"
+      input-class="text-rrinput text-rrinput-center"
       class="bg-rrinput"
       label-color="primary"
       @update:model-value="handleMinMaxDice('max')"
@@ -137,7 +137,7 @@ export default defineComponent({
       dense
       label="#"
       v-model="dice"
-      input-class="text-rrinput"
+      input-class="text-rrinput text-rrinput-center"
       class="bg-rrinput"
       :style="{ width: '9em' }"
       label-color="primary"
@@ -206,5 +206,10 @@ export default defineComponent({
 <style scoped lang="scss">
 .rr-active-button {
   color: $text-default !important;
+}
+
+.q-field__label {
+  text-align: center;
+  width: 100%;
 }
 </style>
