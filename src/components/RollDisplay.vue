@@ -35,7 +35,6 @@ export default defineComponent({
         const data = MODE[props.roll.mode].displayMulti(
           props.roll.die.getThrow(),
           props.roll.display,
-          props.roll.die.max
         );
         copyToClipboard(data)
           .then(() => {
@@ -105,7 +104,6 @@ export default defineComponent({
 .rr-big-btn {
   color: $primary;
   min-width: 2.6em;
-  font-variant: small-caps;
   text-transform: none;
 }
 </style>

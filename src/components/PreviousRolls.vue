@@ -2,7 +2,7 @@
 <script lang="ts">
 import { defineComponent, computed, PropType } from 'vue';
 import { rollHistoryType } from 'components/models';
-import { MODE_ID, MODE } from 'src/lib/modes';
+import { MODE } from 'src/lib/modes';
 
 // return list of strings of roll results from history (recent first)
 export default defineComponent({
@@ -16,18 +16,15 @@ export default defineComponent({
   setup(props) {
     const previousRollsString = computed((): string => {
       const result: string[] = [];
-      let rs = '';
-      let val = 0;
-
       // skip first roll
       for (const r of props.rolls.slice(
         props.skip,
         props.limit + 1 + props.skip
       )) {
         if (r.die.dice === 1) {
-          result.push(r.display[0]);
+          result.push(MODE[r.mode].quick_label_prefix + r.display[0]);
         } else {
-          result.push(MODE[r.mode].displayMulti(r.die.getThrow(), r.display, r.die.max));
+          result.push(MODE[r.mode].displayMulti(r.die.getThrow(), r.display));
         }
       }
       return result.join('&hellip; ');

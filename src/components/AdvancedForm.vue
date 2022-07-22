@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, ref, watch, computed } from 'vue';
+import { defineComponent, ref, watch } from 'vue';
 import { Die } from 'src/lib/die';
 import { MODE } from 'src/lib/modes';
 import InputNumber from 'src/components/InputNumber.vue';

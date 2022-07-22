@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineProps, defineEmits, ref, watch, PropType } from 'vue';
+import { defineProps, defineEmits, ref, watch } from 'vue';
 import { Die } from 'src/lib/die';
 import { rollHistoryType } from './models';
 
@@ -20,10 +20,9 @@ const console_input = ref('');
 const error_status = ref(false);
 const console_error = ref('');
 
-watch(
-  console_error,
-  () => {error_status.value = console_error.value !== ''}
-);
+watch(console_error, () => {
+  error_status.value = console_error.value !== '';
+});
 
 watch(
   () => props.active,
@@ -48,6 +47,7 @@ function onSubmit() {
   if (!console_error.value) {
     emit('submit', {
       die: new_die,
+      display: [],
       mode: new_mode,
       label: console_input.value,
       time: new Date(),

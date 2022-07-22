@@ -38,7 +38,7 @@ function letsroll(
 
   rolls.unshift({
     label: die.toString(),
-    display: die.getThrow().map(v => MODE[mode].historyValue(
+    display: die.getThrow().map(v => MODE[mode].displayValue(
           v,
           die.max
         )),

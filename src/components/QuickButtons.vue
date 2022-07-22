@@ -1,5 +1,5 @@
 <script lang="ts">
-import { ref, defineComponent, PropType, computed } from 'vue';
+import { defineComponent, computed } from 'vue';
 
 import { MODE_ID, MODE } from 'src/lib/modes';
 
@@ -22,7 +22,9 @@ export default defineComponent({
   },
   emits: ['onQuickButton'],
   setup(props) {
-    const button_set = computed(() => MODE[props.mode].quick.map((v, i) => [v, MODE[props.mode].quick_label[i]]));
+    const button_set = computed(() =>
+      MODE[props.mode].quick.map((v, i) => [v, MODE[props.mode].quick_label[i]])
+    );
     return { button_set, MODE: MODE_ID };
   },
 });

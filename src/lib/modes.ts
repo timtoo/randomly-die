@@ -61,7 +61,6 @@ class ModeBase {
   }
 
   // if a mapping string contains // then split and chose randomly
-  // NOTE: this makes the "PreviousRolls" display not 100% accurate in split cases
   mappingChoice(s: string) {
     if (s.indexOf('//') > -1) {
       const a = s.split('//');
@@ -72,27 +71,30 @@ class ModeBase {
 
   // override in case history string should be different from displayValue()
   historyValue(v: number, max?: number): string {
-    return this.displayValue(v, max);
+    return this.quick_label_prefix + this.displayValue(v, max);
   }
 
   // if given multiple values, how to display them? depends on this.summable
-  displayMulti(v: number[], display: string[], max?: number): string {
+  displayMulti(v: number[], display: string[]): string {
     if (this.summable && v.length > 1) {
-      return this._displayMultiWithTotal(v, display, max);
+      return this._displayMultiWithTotal(v, display);
     } else {
-      return this._displayMultiValsOnly(v, display, max);
+      return this._displayMultiValsOnly(display);
     }
   }
 
   // return formated total, with individual values in brackets after
-  _displayMultiWithTotal(v: number[], display: string[], max?: number): string {
-    const displayTotal = this.displayValue(v.reduce((p, c) => p + c));
-    return displayTotal + ' (' + display.join('/') + ')';
+  _displayMultiWithTotal(v: number[], display: string[]): string {
+    const total = v.reduce((p, c) => p + c);
+    // max is not needed as it is only used for mappings so is meaninless for a sum?
+    const displayTotal =
+      this.quick_label_prefix + this.displayValue(total, total);
+    return displayTotal + ' (' + this._displayMultiValsOnly(display) + ')';
   }
 
   // alternate display without total
-  _displayMultiValsOnly(v: number[], display: string[], max?: number): string {
-    return display.join('/');
+  _displayMultiValsOnly(display: string[]): string {
+    return display.map((s) => this.quick_label_prefix + s).join('/');
   }
 }
 
@@ -131,10 +133,6 @@ class ModeBinary extends ModeBase {
   formatValue(v: number): string {
     return v.toString(2);
   }
-
-  historyValue(v: number, max: number): string {
-    return 'b' + this.displayValue(v, max);
-  }
 }
 
 class ModeDice extends ModeBase {
@@ -165,11 +163,7 @@ class ModeHex extends ModeBase {
   default_max = 256;
 
   formatValue(v: number): string {
-    return v.toString(16);
-  }
-
-  historyValue(v: number, max: number): string {
-    return 'x' + this.displayValue(v, max);
+    return v.toString(16).toUpperCase();
   }
 }
 
