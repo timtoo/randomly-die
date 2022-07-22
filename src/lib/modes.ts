@@ -216,7 +216,7 @@ class ModeNote extends ModeBase {
     ],
   };
   quick = [5, 7, 12];
-  _quick_label = ['Pentatonic', 'Whole', 'Chromatic'];
+  _quick_label = ['Pentatonic', 'Heptatonic', 'Chromatic'];
   default_max = 2;
 }
 // &#x266d; - flat
