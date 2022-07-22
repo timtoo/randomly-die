@@ -10,6 +10,7 @@ export default defineComponent({
   name: 'RollDisplay',
   props: {
     value: { type: Number, default: 0 },
+    display: String,
     roll: { type: Object as PropType<rollHistoryType | null>, default: null }, // required: true causes typescript warnings
     index: { type: Number, default: 0 },
   },
@@ -23,21 +24,15 @@ export default defineComponent({
     let padding = '1em 4em 1em 4em';
 
     const displayValue = computed(() => {
-      if (props.roll) {
-        if (props.roll.mode === MODE_ID.dice) padding = '1em 1em 1em 1em';
-        return MODE[props.roll.mode].displayValue(
-          props.value,
-          props.roll.die.max
-        );
-      }
-      return 'Press Here';
+      if (props.roll && props.roll.mode === MODE_ID.dice) padding = '1em 1em 1em 1em';
+      return props.display;
     });
 
     function handleLongPress() {
       inLongPress.value = true;
       if (props.roll) {
         copyToClipboard(
-          MODE[props.roll.mode].displayMulti(props.roll.die.getThrow(), props.roll.die.max)  
+          MODE[props.roll.mode].displayMulti(props.roll.die.getThrow(), props.roll.display, props.roll.die.max)  
         )
           .then(() => {
             $q.notify({

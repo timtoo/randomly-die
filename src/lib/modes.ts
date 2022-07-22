@@ -23,19 +23,19 @@ class ModeBase {
   readonly default_max: number = -1; // default quick active button, essentially; also default mapping
   readonly summable?: boolean = true; // values can be added together
   readonly mappings?: { [max: number]: string[] }; // results to display rather than numbers
-  quick_label: string[] = []; // optional labels to use instead of numbers on quick buttons
+  readonly quick_label_prefix: string = ''; // used for hex/binary
+  _quick_label: string[] = []; // optional labels to use instead of numbers on quick buttons
 
-  coonstructor() {
-    this.createQuickLabels();
-  }
-
-  // generate quick button label strings if none have been provided
-  private createQuickLabels() {
-    if (this.quick.length != this.quick_label.length) {
+  // generate quick_label as needed
+  get quick_label() {
+    const length_diff = this.quick.length - this._quick_label.length;
+    console.log(`creating ${length_diff} labels for ${this.name}`);
+    for (let i = 0; i < length_diff; i++) {
       for (const i of this.quick) {
-        this.quick_label.push(i.toString());
+        this._quick_label.push(this.quick_label_prefix + this.formatValue(i));
       }
     }
+    return this._quick_label;
   }
 
   // turn the number into a formatted string; override as needed
@@ -51,15 +51,23 @@ class ModeBase {
       Object.keys(this.mappings).includes(max.toString())
     ) {
       const mapping = this.mappings[max];
-      console.log(v, ' ', max, ' ', this.mappings);
       if (!this.override.zerobase && v > 0) v--; // normalize for zerobase array
       //if (this.override.exclusive && max > 0) max--;
-      if (v >= max) v = v % max;
-      console.log(v, ' ', max, ' ', mapping);
-      return mapping[v];
+      if (v >= max) v = v % max; // make sure we're in range of the mapping
+      return this.mappingChoice(mapping[v]);
     } else {
       return this.formatValue(v);
     }
+  }
+
+  // if a mapping string contains // then split and chose randomly
+  // NOTE: this makes the "PreviousRolls" display not 100% accurate in split cases
+  mappingChoice(s: string) {
+    if (s.indexOf('//') > -1) {
+      const a = s.split('//');
+      s = a[Math.floor(Math.random() * a.length)];
+    }
+    return s;
   }
 
   // override in case history string should be different from displayValue()
@@ -68,25 +76,23 @@ class ModeBase {
   }
 
   // if given multiple values, how to display them? depends on this.summable
-  displayMulti(v: number[], max?: number): string {
+  displayMulti(v: number[], display: string[], max?: number): string {
     if (this.summable && v.length > 1) {
-      return this._displayMultiWithTotal(v, max);
+      return this._displayMultiWithTotal(v, display, max);
     } else {
-      return this._displayMultiValsOnly(v, max);
+      return this._displayMultiValsOnly(v, display, max);
     }
   }
 
   // return formated total, with individual values in brackets after
-  _displayMultiWithTotal(v: number[], max?: number): string {
+  _displayMultiWithTotal(v: number[], display: string[], max?: number): string {
     const displayTotal = this.displayValue(v.reduce((p, c) => p + c));
-    const displayVals = v.map((i) => this.displayValue(i, max));
-    return displayTotal + ' (' + displayVals.join(',') + ')';
+    return displayTotal + ' (' + display.join('/') + ')';
   }
 
   // alternate display without total
-  _displayMultiValsOnly(v: number[], max?: number): string {
-    const displayVals = v.map((i) => this.displayValue(i, max));
-    return displayVals.join(',');
+  _displayMultiValsOnly(v: number[], display: string[], max?: number): string {
+    return display.join('/');
   }
 }
 
@@ -113,6 +119,7 @@ class ModeBinary extends ModeBase {
     exclusive: false,
   };
   quick = [2, 4, 8, 16, 32, 64, 256, 256 * 256];
+  quick_label_prefix = 'b';
   default_max = 256;
 
   displayValue(v: number, max: number): string {
@@ -154,6 +161,7 @@ class ModeHex extends ModeBase {
   quick = [
     16, 32, 64, 128, 256, 1024, 2048, 4096, 8192, 65536, 1048576, 16777216,
   ];
+  quick_label_prefix = 'x';
   default_max = 256;
 
   formatValue(v: number): string {
@@ -196,23 +204,25 @@ class ModeNote extends ModeBase {
   };
   summable = false;
   mappings = {
+    [5]: ['A', 'C', 'D', 'E', 'G'],
     [7]: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
     [12]: [
       'A',
-      'A♯/B♭',
+      'A♯//B♭',
       'B',
       'C',
-      'C♯/D♭',
+      'C♯//D♭',
       'D',
-      'D♯/E♭',
+      'D♯//E♭',
       'E',
       'F',
-      'F♯/G♭',
+      'F♯//G♭',
       'G',
-      'G♯/A♭',
+      'G♯//A♭',
     ],
   };
-  quick = [7, 12];
+  quick = [5, 7, 12];
+  _quick_label = ['Pentatonic', 'Whole', 'Chromatic'];
   default_max = 2;
 }
 // &#x266d; - flat

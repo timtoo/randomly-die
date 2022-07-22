@@ -22,7 +22,7 @@ export default defineComponent({
   },
   emits: ['onQuickButton'],
   setup(props) {
-    const button_set = computed(() => MODE[props.mode].quick);
+    const button_set = computed(() => MODE[props.mode].quick.map((v, i) => [v, MODE[props.mode].quick_label[i]]));
     return { button_set, MODE: MODE_ID };
   },
 });
@@ -34,21 +34,15 @@ export default defineComponent({
       {{ label }}
     </div>
     <div class="row justify-center">
-      <template v-for="v in button_set" :key="v">
+      <template v-for="v in button_set" :key="v[0]">
         <q-btn
           flat
           no-caps
-          @click="$emit('onQuickButton', v)"
+          @click="$emit('onQuickButton', v[0])"
           class="rr-qb"
-          :class="{ 'rr-qb-selected': current === v }"
+          :class="{ 'rr-qb-selected': current === v[0] }"
         >
-          {{
-            mode === MODE.hex
-              ? 'x' + v.toString(16)
-              : mode === MODE.binary
-              ? 'b' + v.toString(2)
-              : v.toLocaleString()
-          }}
+          {{ v[1] }}
         </q-btn>
       </template>
     </div>

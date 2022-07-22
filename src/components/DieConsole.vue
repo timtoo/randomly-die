@@ -1,42 +1,59 @@
-<script lang="ts">
-import { defineComponent, ref, watch } from 'vue';
+<script setup lang="ts">
+import { defineProps, defineEmits, ref, watch, PropType } from 'vue';
+import { Die } from 'src/lib/die';
+import { rollHistoryType } from './models';
 
-export default defineComponent({
-  name: 'DieConsole',
-  props: {
-    active: Boolean,
-    error: String,
-  },
-  emits: ['console-close', 'submit'],
-  setup(props, ctx) {
-    const console_active = ref(props.active);
-    const console_input = ref('');
-    const error_status = ref(false);
+interface Props {
+  active: boolean;
+  history: rollHistoryType[];
+}
 
-    watch(
-      () => props.error,
-      () => (error_status.value = props.error ? true : false)
-    );
+const props = defineProps<Props>();
 
-    watch(
-      () => props.active,
-      () => (console_active.value = props.active)
-    );
+const emit = defineEmits<{
+  (e: 'submit', data: rollHistoryType): void;
+  (e: 'console-close'): void;
+}>();
 
-    watch(console_input, () => { console_input.value === '' ? error_status.value = false : null})
+const console_active = ref(props.active);
+const console_input = ref('');
+const error_status = ref(false);
+const console_error = ref('');
 
-    function onSubmit() {
-      ctx.emit('submit', console_input.value);
-    }
+watch(
+  console_error,
+  () => {error_status.value = console_error.value !== ''}
+);
 
-    return {
-      console_active,
-      console_input,
-      error_status,
-      onSubmit,
-    };
-  },
+watch(
+  () => props.active,
+  () => (console_active.value = props.active)
+);
+
+watch(console_input, () => {
+  console_input.value === '' ? (error_status.value = false) : null;
 });
+
+function onSubmit() {
+  let new_die = props.history[0].die;
+  let new_mode = props.history[0].mode;
+  try {
+    new_die = new Die(console_input.value);
+    console_error.value = '';
+  } catch {
+    console_error.value = 'Invalid dice format. Try something like 3d6.';
+  }
+  console.log('handle console submit: ' + console_input.value);
+
+  if (!console_error.value) {
+    emit('submit', {
+      die: new_die,
+      mode: new_mode,
+      label: console_input.value,
+      time: new Date(),
+    });
+  }
+}
 </script>
 
 <template>
@@ -57,7 +74,7 @@ export default defineComponent({
           outlined
           stack-label
           bottom-slots
-          :error-message="error"
+          :error-message="console_error"
           :error="error_status"
           v-model="console_input"
           @keyup.enter="onSubmit"

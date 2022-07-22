@@ -25,9 +25,9 @@ export default defineComponent({
         props.limit + 1 + props.skip
       )) {
         if (r.die.dice === 1) {
-          result.push(MODE[r.mode].displayValue(r.die.getResult(), r.die.max));
+          result.push(r.display[0]);
         } else {
-          result.push(MODE[r.mode].displayMulti(r.die.getThrow(), r.die.max));
+          result.push(MODE[r.mode].displayMulti(r.die.getThrow(), r.display, r.die.max));
         }
       }
       return result.join('&hellip; ');

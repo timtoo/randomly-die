@@ -1,7 +1,7 @@
 <script lang="ts">
 import { computed, defineComponent, ref } from 'vue';
 import { rollHistoryType } from 'components/models';
-import { MODE_ID, MODE } from 'src/lib/modes'
+import { MODE_ID, MODE } from 'src/lib/modes';
 import { Die } from 'src/lib/die';
 import AdvancedForm from 'components/AdvancedForm.vue';
 import HistoryList from 'src/components/HistoryList.vue';
@@ -38,6 +38,10 @@ function letsroll(
 
   rolls.unshift({
     label: die.toString(),
+    display: die.getThrow().map(v => MODE[mode].historyValue(
+          v,
+          die.max
+        )),
     die: die,
     mode: mode,
     time: new Date(),
@@ -71,7 +75,7 @@ export default defineComponent({
     const lastUpdate = ref(new Date());
     const mode = ref(MODE_ID.default);
     const console_active = ref(false);
-    const console_error = ref('')
+    const console_error = ref('');
     const ttopen = ref(false); // hint tooltip
     const afrender = ref(0);
 
@@ -133,25 +137,17 @@ export default defineComponent({
       // quantity is not resetting
     }
 
-    function handleConsoleSubmit(v : string) {
-      try {
-        const new_die = new Die(v)
-        die.value = new_die
-        console_error.value = ''
-        bigButtonClick()   
-      }
-      catch {
-        console_error.value = "Invalid dice format. Try something like 3d6."
-      }
-      console.log('handle console submit: ' + v)
+    function handleConsoleSubmit(data: rollHistoryType) {
+      if (data.die !== undefined) die.value = data.die as Die;
+      if (data.mode !== undefined) mode.value = data.mode as number;
+      bigButtonClick();
+      console.log('handle console submit: ', data);
     }
 
     onKeyStroke([' ', 'Enter'], (e) => {
       if (console_active.value) {
-        console.log('console open: no enter')
-        
-      }
-      else {
+        console.log('console open: no enter');
+      } else {
         e.preventDefault();
         bigButtonClick();
       }
@@ -195,6 +191,7 @@ export default defineComponent({
           <roll-display
             :value="v"
             :index="idx"
+            :display="lastRoll.display[idx]"
             :roll="lastRoll"
             @on-roll-display-click="bigButtonClick"
           ></roll-display></div
@@ -203,6 +200,7 @@ export default defineComponent({
         <roll-display
           :value="0"
           :roll="null"
+          display="Press Here"
           @on-roll-display-click="bigButtonClick"
         ></roll-display>
       </template>
@@ -311,7 +309,12 @@ export default defineComponent({
     </div>
 
     <!-- Console -->
-    <DieConsole :active="console_active" :error="console_error" @console-close="console_active=false" @submit="handleConsoleSubmit"></DieConsole>
+    <DieConsole
+      :active="console_active"
+      :history="rolls"
+      @console-close="console_active = false"
+      @submit="handleConsoleSubmit"
+    ></DieConsole>
 
     <!-- FAB -->
     <q-page-sticky position="bottom-right" :offset="[20, 20]">
