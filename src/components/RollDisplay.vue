@@ -24,19 +24,23 @@ export default defineComponent({
     let padding = '1em 4em 1em 4em';
 
     const displayValue = computed(() => {
-      if (props.roll && props.roll.mode === MODE_ID.dice) padding = '1em 1em 1em 1em';
+      if (props.roll && props.roll.mode === MODE_ID.dice)
+        padding = '1em 1em 1em 1em';
       return props.display;
     });
 
     function handleLongPress() {
       inLongPress.value = true;
       if (props.roll) {
-        copyToClipboard(
-          MODE[props.roll.mode].displayMulti(props.roll.die.getThrow(), props.roll.display, props.roll.die.max)  
-        )
+        const data = MODE[props.roll.mode].displayMulti(
+          props.roll.die.getThrow(),
+          props.roll.display,
+          props.roll.die.max
+        );
+        copyToClipboard(data)
           .then(() => {
             $q.notify({
-              message: 'Copied to clipboard!',
+              message: 'Copied "' + data + '" to clipboard!',
               icon: 'announcement',
               color: 'primary',
               position: 'top',
