@@ -29,10 +29,12 @@ class ModeBase {
   // generate quick_label as needed
   get quick_label() {
     const length_diff = this.quick.length - this._quick_label.length;
-    console.log(`creating ${length_diff} labels for ${this.name}`);
-    for (let i = 0; i < length_diff; i++) {
-      for (const i of this.quick) {
-        this._quick_label.push(this.quick_label_prefix + this.formatValue(i));
+    if (length_diff > 0) {
+      //console.log(`creating ${length_diff} labels for ${this.name}`);
+      for (let i = 0; i < length_diff; i++) {
+        for (const i of this.quick) {
+          this._quick_label.push(this.quick_label_prefix + this.formatValue(i));
+        }
       }
     }
     return this._quick_label;
@@ -140,7 +142,7 @@ class ModeBinary extends ModeBase {
 }
 
 class ModeDice extends ModeBase {
-  id = MODE_ID.binary;
+  id = MODE_ID.dice;
   name = 'Dice';
   material_icon = 'casino';
   override = {
@@ -226,18 +228,22 @@ class ModeNote extends ModeBase {
 // &#x266d; - flat
 // &#x266f; - sharp
 
-export const MODE: { [mode: number]: ModeBase } = {
-  [MODE_ID.default]: new ModeNormal(),
-  [MODE_ID.binary]: new ModeBinary(),
-  [MODE_ID.hex]: new ModeHex(),
-  [MODE_ID.dice]: new ModeDice(),
-  [MODE_ID.note]: new ModeNote(),
-  [MODE_ID.yesno]: new ModeYesNo(),
-};
+const all_modes = [
+  new ModeNormal(),
+  new ModeBinary(),
+  new ModeHex(),
+  new ModeDice(),
+  new ModeNote(),
+  new ModeYesNo(),
+];
+
+export const MODE: { [mode: number]: ModeBase } = Object.fromEntries(
+  all_modes.map((m) => [m.id, m])
+);
 
 export function mode_by_name(s: string): ModeBase | void {
   const mode = Object.values(MODE).filter((m) => {
     return m.name_stripped.toLowerCase().startsWith(s.toLowerCase());
   });
-  if (mode.length>0) return mode[0];
+  if (mode.length > 0) return mode[0];
 }
