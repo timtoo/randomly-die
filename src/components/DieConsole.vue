@@ -2,9 +2,12 @@
 import { defineProps, defineEmits, ref, watch } from 'vue';
 import { Die } from 'src/lib/die';
 import { rollHistoryType } from './models';
+import { MODE_ID, mode_by_name } from 'src/lib/modes';
 
 interface Props {
   active: boolean;
+  die: Die;
+  mode: MODE_ID;
   history: rollHistoryType[];
 }
 
@@ -34,15 +37,41 @@ watch(console_input, () => {
 });
 
 function onSubmit() {
-  let new_die = props.history[0].die;
-  let new_mode = props.history[0].mode;
-  try {
-    new_die = new Die(console_input.value);
-    console_error.value = '';
-  } catch {
-    console_error.value = 'Invalid dice format. Try something like 3d6.';
-  }
+  let terms = console_input.value.split(/[ :;.,]+/);
+  let valid_die = false;
+  let valid_mode = false;
+  let new_die = props.die;
+  let new_mode = props.mode;
+
   console.log('handle console submit: ' + console_input.value);
+
+  while (terms.length > 0) {
+    if (!valid_mode) {
+      let found_mode = mode_by_name(terms[0]);
+      if (found_mode) {
+        console.log(`Console found mode: ${found_mode.id} (${terms[0]})`)
+        new_mode = found_mode.id;
+        valid_mode = true;
+        terms = terms.slice(1);
+      }
+    }
+    if (terms.length > 0) {
+      if (
+        !valid_die &&
+        (terms[0].indexOf('d') >= 0 || terms[0].indexOf('D') >= 0)
+      ) {
+        try {
+          new_die = new Die(terms[0]);
+          console_error.value = '';
+          valid_die = true;
+          console.log(`Console found die: ${new_die.toString()} (${terms[0]})`)
+        } catch {
+          console_error.value = 'Invalid dice format. Try something like 3d6.';
+        }
+      }
+      terms = terms.slice(1);
+    }
+  }
 
   if (!console_error.value) {
     emit('submit', {

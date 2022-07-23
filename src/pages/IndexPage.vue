@@ -93,7 +93,7 @@ export default defineComponent({
 
     function handleURLChange() {
       //console.log('route ', route);
-      //console.log(route.params);
+      console.log('route params', route.params);
       if (route.params.mode) {
         const new_mode = mode_by_name(route.params.mode[0]);
         if (new_mode) {
@@ -102,7 +102,7 @@ export default defineComponent({
       }
       if (route.params.die) {
         try {
-          const new_die = new Die(route.params.die[0]);
+          const new_die = new Die(typeof route.params.die === 'string' ? route.params.die : route.params.die[0]);
           die.value = new_die;
         } catch {
           console.log('Could not parse die: ', route.params.die[0]);
@@ -126,12 +126,12 @@ export default defineComponent({
 
     function bigButtonClick() {
       die.value = letsroll(die.value, mode.value, rolls.value);
-      lastUpdate.value = _rolls[0].time;
+      lastUpdate.value = rolls.value[0].time;
       if (
-        _rolls.length == 1 ||
-        (_rolls.length > 1 &&
-          (_rolls[0].mode != _rolls[1].mode ||
-            _rolls[0].label != _rolls[1].label))
+        rolls.value.length == 1 ||
+        (rolls.value.length > 1 &&
+          (rolls.value[0].mode != rolls.value[1].mode ||
+            rolls.value[0].label != rolls.value[1].label))
       ) {
         updateURL(false); // die or mode changed to add to URL history
       }
@@ -355,6 +355,8 @@ export default defineComponent({
     <DieConsole
       :active="console_active"
       :history="rolls"
+      :die="die"
+      :mode="mode"
       @console-close="console_active = false"
       @submit="handleConsoleSubmit"
     ></DieConsole>
