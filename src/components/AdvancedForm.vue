@@ -158,7 +158,9 @@ export default defineComponent({
       :icon="MODE[mode].material_icon"
       ><q-list bordered dense class="bg-rrinput">
         <template
-          v-for="m of Object.keys(MODE).map((k) => parseInt(k))"
+          v-for="m of Object.values(MODE)
+            .sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))
+            .map((m) => m.id)"
           :key="m"
         >
           <q-item clickable v-close-popup @click="$emit('mode-change', m)">
