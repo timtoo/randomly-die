@@ -1,7 +1,8 @@
 <script lang="ts">
-import { computed, defineComponent, ref } from 'vue';
+import { computed, defineComponent, ref, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 import { rollHistoryType } from 'components/models';
-import { MODE_ID, MODE } from 'src/lib/modes';
+import { MODE_ID, MODE, mode_by_name } from 'src/lib/modes';
 import { Die } from 'src/lib/die';
 import AdvancedForm from 'components/AdvancedForm.vue';
 import HistoryList from 'src/components/HistoryList.vue';
@@ -38,10 +39,7 @@ function letsroll(
 
   rolls.unshift({
     label: die.toString(),
-    display: die.getThrow().map(v => MODE[mode].displayValue(
-          v,
-          die.max
-        )),
+    display: die.getThrow().map((v) => MODE[mode].displayValue(v, die.max)),
     die: die,
     mode: mode,
     time: new Date(),
@@ -69,7 +67,6 @@ export default defineComponent({
   },
   setup() {
     const _rolls: rollHistoryType[] = [];
-    // all prevoius die objects, with label and mode (oldest last)
     const die = ref(new Die(DEFAULT_MIN, DEFAULT_MAX, DEFAULT_QUANTITY));
     const rolls = ref(_rolls);
     const lastUpdate = ref(new Date());
@@ -78,6 +75,13 @@ export default defineComponent({
     const console_error = ref('');
     const ttopen = ref(false); // hint tooltip
     const afrender = ref(0);
+    const router = useRouter();
+    const route = useRoute();
+
+    watch(
+      () => route.params,
+      () => handleURLChange()
+    );
 
     const lastRoll = computed(() => {
       return rolls.value.length > 0 ? rolls.value[0] : null;
@@ -87,9 +91,50 @@ export default defineComponent({
       return rolls.value.length > 0 ? rolls.value[0].die.dice : 0;
     });
 
+    function handleURLChange() {
+      //console.log('route ', route);
+      //console.log(route.params);
+      if (route.params.mode) {
+        const new_mode = mode_by_name(route.params.mode[0]);
+        if (new_mode) {
+          mode.value = new_mode.id;
+        }
+      }
+      if (route.params.die) {
+        try {
+          const new_die = new Die(route.params.die[0]);
+          die.value = new_die;
+        } catch {
+          console.log('Could not parse die: ', route.params.die[0]);
+        }
+      }
+    }
+
+    onMounted(() => {
+      handleURLChange();
+    });
+
+    function updateURL(replace = true) {
+      const r = lastRoll.value;
+      if (r) {
+        router.push({
+          params: { mode: MODE[r.mode].name_stripped, die: r.label },
+          replace: replace,
+        });
+      }
+    }
+
     function bigButtonClick() {
       die.value = letsroll(die.value, mode.value, rolls.value);
-      lastUpdate.value = new Date();
+      lastUpdate.value = _rolls[0].time;
+      if (
+        _rolls.length == 1 ||
+        (_rolls.length > 1 &&
+          (_rolls[0].mode != _rolls[1].mode ||
+            _rolls[0].label != _rolls[1].label))
+      ) {
+        updateURL(false); // die or mode changed to add to URL history
+      }
     }
 
     function handleQuickButton(v: number) {
@@ -102,7 +147,6 @@ export default defineComponent({
       die.value.min = v[0];
       die.value.max = v[1];
       die.value.dice = v[2];
-      //console.log('process advanced ', v);
     }
 
     function handleChipClick(v: rollHistoryType) {
@@ -141,7 +185,6 @@ export default defineComponent({
       if (data.die !== undefined) die.value = data.die as Die;
       if (data.mode !== undefined) mode.value = data.mode as number;
       bigButtonClick();
-      console.log('handle console submit: ', data);
     }
 
     onKeyStroke([' ', 'Enter'], (e) => {

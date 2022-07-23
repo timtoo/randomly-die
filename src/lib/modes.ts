@@ -38,6 +38,10 @@ class ModeBase {
     return this._quick_label;
   }
 
+  get name_stripped() {
+    return this.name.replace(/\W+/g, '');
+  }
+
   // turn the number into a formatted string; override as needed
   formatValue(v: number): string {
     return v.toLocaleString();
@@ -230,3 +234,10 @@ export const MODE: { [mode: number]: ModeBase } = {
   [MODE_ID.note]: new ModeNote(),
   [MODE_ID.yesno]: new ModeYesNo(),
 };
+
+export function mode_by_name(s: string): ModeBase | void {
+  const mode = Object.values(MODE).filter((m) => {
+    return m.name_stripped.toLowerCase().startsWith(s.toLowerCase());
+  });
+  if (mode.length>0) return mode[0];
+}

@@ -40,7 +40,7 @@ export default defineComponent({
         min.value = props.die.min;
         max.value = props.die.max;
         dice.value = props.die.dice;
-        console.log('af watch die');
+        //console.log('advanced form watch die');
       }
     );
 
