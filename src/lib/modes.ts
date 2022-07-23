@@ -159,6 +159,7 @@ class ModeHex extends ModeBase {
   name = 'Hexidecimal';
   material_icon = 'hexagon';
   override = {
+    min: 0,
     zerobase: true,
     exclusive: true,
   };
@@ -178,6 +179,8 @@ class ModeYesNo extends ModeBase {
   name = 'Yes/No';
   material_icon = 'help';
   override = {
+    min: 0,
+    max: 3,
     zerobase: true,
     exclusive: true,
   };

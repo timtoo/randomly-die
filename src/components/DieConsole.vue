@@ -66,7 +66,7 @@ function onSubmit() {
           valid_die = true;
           console.log(`Console found die: ${new_die.toString()} (${terms[0]})`)
         } catch {
-          console_error.value = 'Invalid dice format. Try something like 3d6.';
+          console_error.value = 'Invalid dice format. Try something like: dice 3d6.';
         }
       }
       terms = terms.slice(1);
