@@ -102,7 +102,11 @@ export default defineComponent({
       }
       if (route.params.die) {
         try {
-          const new_die = new Die(typeof route.params.die === 'string' ? route.params.die : route.params.die[0]);
+          const new_die = new Die(
+            typeof route.params.die === 'string'
+              ? route.params.die
+              : route.params.die[0]
+          );
           die.value = new_die;
         } catch {
           console.log('Could not parse die: ', route.params.die[0]);
@@ -200,6 +204,7 @@ export default defineComponent({
     onKeyStroke('Escape', () => (console_active.value = false));
 
     return {
+      MODE,
       lastRoll,
       dice_count,
       lastUpdate,
@@ -365,7 +370,7 @@ export default defineComponent({
     <q-page-sticky position="bottom-right" :offset="[20, 20]">
       <q-btn
         fab
-        icon="auto_awesome"
+        :icon="MODE[mode].material_icon"
         color="secondary"
         text-color="black"
         @click="bigButtonClick"
