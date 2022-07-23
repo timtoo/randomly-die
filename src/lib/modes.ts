@@ -106,7 +106,7 @@ class ModeBase {
 
 class ModeNormal extends ModeBase {
   id = MODE_ID.default;
-  name = 'Normal';
+  name = 'Number';
   material_icon = 'tag';
   override = {
     zerobase: false,
