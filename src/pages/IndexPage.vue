@@ -11,6 +11,7 @@ import QuickButtons from 'components/QuickButtons.vue';
 import RollDisplay from 'components/RollDisplay.vue';
 import DieConsole from 'components/DieConsole.vue';
 import DebugDie from 'components/DebugDie.vue';
+import TimerBar from 'components/TimerBar.vue';
 import { onKeyStroke } from '@vueuse/core';
 
 const DEFAULT_QUANTITY = 1;
@@ -63,6 +64,7 @@ export default defineComponent({
     HistoryList,
     AdvancedForm,
     DieConsole,
+    TimerBar,
     DebugDie,
   },
   setup() {
@@ -75,6 +77,7 @@ export default defineComponent({
     const console_error = ref('');
     const ttopen = ref(false); // hint tooltip
     const afrender = ref(0);
+    const slideshow = ref(false);
     const router = useRouter();
     const route = useRoute();
 
@@ -128,6 +131,12 @@ export default defineComponent({
       }
     }
 
+    function toggleSlideshow() {
+      slideshow.value = !slideshow.value;
+      if (slideshow.value) bigButtonClick();
+      console.log('Slideshow now ', slideshow.value);
+    }
+
     function bigButtonClick() {
       die.value = letsroll(die.value, mode.value, rolls.value);
       lastUpdate.value = rolls.value[0].time;
@@ -148,6 +157,12 @@ export default defineComponent({
     }
 
     function advancedUpdate(v: number[]) {
+      if (die.value.min == 0 && v[0] > 0) {
+        die.value.zerobase = false;
+      }
+      if (die.value.min > 0 && v[0] == 0) {
+        die.value.zerobase = true;
+      }
       die.value.min = v[0];
       die.value.max = v[1];
       die.value.dice = v[2];
@@ -179,6 +194,9 @@ export default defineComponent({
     }
 
     function handleReset() {
+      if (slideshow.value == true) {
+        toggleSlideshow();
+      }
       die.value = new Die(DEFAULT_MIN, DEFAULT_MAX, DEFAULT_QUANTITY);
       mode.value = MODE_ID.default;
       rolls.value = [];
@@ -218,6 +236,7 @@ export default defineComponent({
       ttopen,
       console_active,
       console_error,
+      slideshow,
       bigButtonClick,
       handleQuickButton,
       handleChipClick,
@@ -226,6 +245,7 @@ export default defineComponent({
       handleReset,
       advancedUpdate,
       handleConsoleSubmit,
+      toggleSlideshow,
     };
   },
 });
@@ -315,7 +335,7 @@ export default defineComponent({
         color="primary"
         icon="help_outline"
         @click="ttopen = !ttopen"
-        ><q-tooltip v-model="ttopen">
+        ><q-tooltip v-model="ttopen" :hide-delay="1550">
           <div style="font-size: 133%">
             <b>Tips and tricks!</b>
             <ul>
@@ -340,7 +360,7 @@ export default defineComponent({
               <li>Use five dice to play Yahtzee?</li>
               <li>` for console. Is that crazy?</li>
             </ul>
-            <i>Use the power of randomness only for good. Please.</i>
+            <i>Use randomness for good.</i>
           </div>
         </q-tooltip></q-btn
       >
@@ -352,6 +372,14 @@ export default defineComponent({
         @click="console_active = !console_active"
       />
       <q-btn flat round color="primary" icon="refresh" @click="handleReset"
+        ><q-tooltip :delay="1000">Reset to defaults</q-tooltip></q-btn
+      >
+      <q-btn
+        flat
+        round
+        color="primary"
+        :icon="slideshow ? 'pause' : 'play_arrow'"
+        @click="toggleSlideshow"
         ><q-tooltip :delay="1000">Reset to defaults</q-tooltip></q-btn
       >
     </div>
@@ -379,6 +407,12 @@ export default defineComponent({
         <span style="text-transform: none">{{ die.toString() }}</span></q-btn
       >
     </q-page-sticky>
+
+    <TimerBar
+      :duration="7000"
+      :active="slideshow"
+      @timeout="bigButtonClick"
+    ></TimerBar>
 
     <DebugDie
       :die="die"

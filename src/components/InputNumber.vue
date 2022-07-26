@@ -35,7 +35,7 @@ export default defineComponent({
       () => props.modelValue,
       (n) => {
         n === undefined ? '0' : (localValue.value = n.toString());
-        console.log('in watched');
+        console.log('InputNumber watched');
       }
     );
 
