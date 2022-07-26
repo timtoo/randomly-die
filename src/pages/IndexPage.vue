@@ -80,6 +80,15 @@ export default defineComponent({
     const slideshow = ref(false);
     const router = useRouter();
     const route = useRoute();
+    const slideshow_delay_base = ref(4500);
+    const slideshow_delay_extra = 500;
+
+    const slideshow_delay = computed(() => {
+      return (
+        slideshow_delay_base.value +
+        slideshow_delay_extra * (die.value.dice - 1)
+      );
+    });
 
     watch(
       () => route.params,
@@ -237,6 +246,7 @@ export default defineComponent({
       console_active,
       console_error,
       slideshow,
+      slideshow_delay,
       bigButtonClick,
       handleQuickButton,
       handleChipClick,
@@ -409,7 +419,7 @@ export default defineComponent({
     </q-page-sticky>
 
     <TimerBar
-      :duration="7000"
+      :duration="slideshow_delay"
       :active="slideshow"
       @timeout="bigButtonClick"
     ></TimerBar>
