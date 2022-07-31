@@ -13,6 +13,7 @@ import DieConsole from 'components/DieConsole.vue';
 import DebugDie from 'components/DebugDie.vue';
 import TimerBar from 'components/TimerBar.vue';
 import { onKeyStroke } from '@vueuse/core';
+import { version } from "../../package.json";
 
 const DEFAULT_QUANTITY = 1;
 const DEFAULT_MIN = 1;
@@ -76,7 +77,7 @@ export default defineComponent({
     const console_active = ref(false);
     const console_error = ref('');
     const ttopen = ref(false); // hint tooltip
-    const afrender = ref(0);
+    const afrender = ref(0);  // this doing anything?
     const slideshow = ref(false);
     const router = useRouter();
     const route = useRoute();
@@ -197,9 +198,10 @@ export default defineComponent({
     }
 
     function handleZeroBaseToggle() {
+      die.value = die.value.clone()
       die.value.zerobase = !die.value.zerobase;
       die.value.min = die.value.zerobase ? 0 : 1;
-      afrender.value++;
+      if (die.value.max <= die.value.min) die.value.max = die.value.min + 1;
     }
 
     function handleReset() {
@@ -247,6 +249,7 @@ export default defineComponent({
       console_error,
       slideshow,
       slideshow_delay,
+      version,
       bigButtonClick,
       handleQuickButton,
       handleChipClick,
@@ -370,6 +373,7 @@ export default defineComponent({
               <li>Use five dice to play Yahtzee?</li>
               <li>` for console. Is that crazy?</li>
             </ul>
+            <div style="float: right">v{{version}}</div>
             <i>Use randomness for good.</i>
           </div>
         </q-tooltip></q-btn
