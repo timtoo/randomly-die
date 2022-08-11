@@ -12,7 +12,7 @@ import RollDisplay from 'components/RollDisplay.vue';
 import DieConsole from 'components/DieConsole.vue';
 import DebugDie from 'components/DebugDie.vue';
 import TimerBar from 'components/TimerBar.vue';
-import { onKeyStroke } from '@vueuse/core';
+import { onKeyStroke } from '@vueuse/core'; 
 import { version } from '../../package.json';
 
 const DEFAULT_QUANTITY = 1;
@@ -83,6 +83,7 @@ export default defineComponent({
     const route = useRoute();
     const slideshow_delay_base = ref(4500);
     const slideshow_delay_extra = 500;
+    const reset_confirm_dialog = ref(false);
 
     const slideshow_delay = computed(() => {
       return (
@@ -212,6 +213,7 @@ export default defineComponent({
       die.value = new Die(DEFAULT_MIN, DEFAULT_MAX, DEFAULT_QUANTITY);
       mode.value = MODE_ID.default;
       rolls.value = [];
+      reset_confirm_dialog.value = false;
       // quantity is not resetting
     }
 
@@ -251,6 +253,7 @@ export default defineComponent({
       slideshow,
       slideshow_delay,
       version,
+      reset_confirm_dialog,
       bigButtonClick,
       handleQuickButton,
       handleChipClick,
@@ -386,7 +389,7 @@ export default defineComponent({
         icon="computer"
         @click="console_active = !console_active"
       />
-      <q-btn flat round color="primary" icon="refresh" @click="handleReset"
+      <q-btn flat round color="primary" icon="refresh" @click="reset_confirm_dialog = true"
         ><q-tooltip :delay="1000">Reset to defaults</q-tooltip></q-btn
       >
       <q-btn
@@ -395,7 +398,7 @@ export default defineComponent({
         color="primary"
         :icon="slideshow ? 'pause' : 'play_arrow'"
         @click="toggleSlideshow"
-        ><q-tooltip :delay="1000">Reset to defaults</q-tooltip></q-btn
+        ><q-tooltip :delay="1000">Toggle automatic random numbers every few seconds</q-tooltip></q-btn
       >
     </div>
 
@@ -423,6 +426,20 @@ export default defineComponent({
       >
     </q-page-sticky>
 
+    <q-dialog v-model="reset_confirm_dialog">
+      <q-card class="reset-card outlined">
+        <q-card-section class="row items-center">
+          <q-avatar icon="warning" color="primary" text-color="white" />
+          <span class="q-ml-sm">Clear history and reset  mode?</span>
+        </q-card-section>
+
+        <q-card-actions align="center">
+          <q-btn outline label="Do it" color="primary" @click="handleReset" />
+          <q-btn outline label="Cancel" color="primary" v-close-popup />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <TimerBar
       :duration="slideshow_delay"
       :active="slideshow"
@@ -436,3 +453,9 @@ export default defineComponent({
     ></DebugDie>
   </q-page>
 </template>
+
+<style lang="scss">
+.reset-card {
+  background-color: $background ;
+}
+</style>
