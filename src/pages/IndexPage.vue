@@ -214,7 +214,7 @@ export default defineComponent({
       mode.value = MODE_ID.default;
       rolls.value = [];
       reset_confirm_dialog.value = false;
-      // quantity is not resetting
+      router.push({ path: '/'})
     }
 
     function handleConsoleSubmit(data: rollHistoryType) {
