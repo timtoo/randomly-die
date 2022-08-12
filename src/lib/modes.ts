@@ -21,7 +21,7 @@ class ModeBase {
   readonly override: override_interface = {}; // zerobase, inclusive, maybe min/max default settings
   readonly quick: number[] = []; // array of numbers to offer as quick buttons
   readonly default_max: number = -1; // default quick active button, essentially; also default mapping
-  readonly summable?: boolean = true; // values can be added together
+  readonly number_base?: number = 10; // use 0 for modes where display is non-numeric
   readonly mappings?: { [max: number]: string[] }; // results to display rather than numbers
   readonly quick_label_prefix: string = ''; // used for hex/binary
   _quick_label: string[] = []; // optional labels to use instead of numbers on quick buttons
@@ -46,7 +46,14 @@ class ModeBase {
 
   // turn the number into a formatted string; override as needed
   formatValue(v: number): string {
-    return v.toLocaleString();
+    if (this.number_base) {
+      if (this.number_base === 10) {
+        return v.toLocaleString();
+      } else if (this.number_base >= 2 && this.number_base <= 36) {
+        return v.toString(this.number_base).toUpperCase();
+      }
+    }
+    return v.toString();
   }
 
   // Figure out if there are mappings and use those if they exist
@@ -80,9 +87,9 @@ class ModeBase {
     return this.quick_label_prefix + this.displayValue(v, max);
   }
 
-  // if given multiple values, how to display them? depends on this.summable
+  // if given multiple values, how to display them? depends on if they have a number_base != 0
   displayMulti(v: number[], display: string[]): string {
-    if (this.summable && v.length > 1) {
+    if (this.number_base && v.length > 1) {
       return this._displayMultiWithTotal(v, display);
     } else {
       return this._displayMultiValsOnly(display);
@@ -129,15 +136,12 @@ class ModeBinary extends ModeBase {
   quick = [2, 4, 8, 16, 32, 64, 256, 256 * 256];
   quick_label_prefix = 'b';
   default_max = 256;
+  number_base = 2;
 
   displayValue(v: number, max: number): string {
     // to avoid constant leading zero in exclusive mode, modify max when passing in like:
     // props.roll.die.max - (props.roll.die.exclusive ? 1 : 0)
     return this.formatValue(v).padStart(max.toString(2).length, '0');
-  }
-
-  formatValue(v: number): string {
-    return v.toString(2);
   }
 }
 
@@ -168,10 +172,7 @@ class ModeHex extends ModeBase {
   ];
   quick_label_prefix = 'x';
   default_max = 256;
-
-  formatValue(v: number): string {
-    return v.toString(16).toUpperCase();
-  }
+  number_base = 16;
 }
 
 class ModeYesNo extends ModeBase {
@@ -184,7 +185,6 @@ class ModeYesNo extends ModeBase {
     zerobase: true,
     exclusive: true,
   };
-  summable = false;
   mappings = {
     [2]: ['No', 'Yes'],
     [3]: ['No', 'Yes', 'Maybe'],
@@ -193,6 +193,7 @@ class ModeYesNo extends ModeBase {
   };
   quick = [2, 3, 4, 5];
   default_max = 2;
+  number_base = 0;
 }
 
 class ModeNote extends ModeBase {
@@ -205,7 +206,6 @@ class ModeNote extends ModeBase {
     min: 1,
     max: 12,
   };
-  summable = false;
   mappings = {
     [5]: ['A', 'C', 'D', 'E', 'G'],
     [7]: ['A', 'B', 'C', 'D', 'E', 'F', 'G'],
@@ -227,6 +227,7 @@ class ModeNote extends ModeBase {
   quick = [5, 7, 12];
   _quick_label = ['Pentatonic', 'Heptatonic', 'Chromatic'];
   default_max = 2;
+  number_base = 0;
 }
 // &#x266d; - flat
 // &#x266f; - sharp
