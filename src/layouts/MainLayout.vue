@@ -1,5 +1,6 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
+import { useStorage } from '@vueuse/core';
 
 export default defineComponent({
   name: 'MainLayout',
@@ -13,13 +14,19 @@ export default defineComponent({
       hideAdvanced: false,
       hideQuick: false,
       enableDebug: false,
+      default_roll: '1d10',
     };
     const leftDrawerOpen = ref(false);
-    const options = ref(options_default);
+    const options = useStorage('options', options_default);
+
+    function handleReset() {
+      options.value = { ...options_default };
+    }
 
     return {
       options,
       leftDrawerOpen,
+      handleReset,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
       },
@@ -99,7 +106,11 @@ export default defineComponent({
             color="red"
           ></q-toggle>
         </q-item>
+        <q-item>
+          <q-btn outline @click="handleReset">Reset</q-btn>
+        </q-item>
       </q-list>
+      <router-link to="/modes">modes</router-link>
     </q-drawer>
 
     <q-page-container>
