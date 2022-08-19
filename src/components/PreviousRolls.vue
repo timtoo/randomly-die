@@ -21,11 +21,7 @@ export default defineComponent({
         props.skip,
         props.limit + 1 + props.skip
       )) {
-        if (r.die.dice === 1) {
-          result.push(MODE[r.mode].quick_label_prefix + r.display[0]);
-        } else {
-          result.push(MODE[r.mode].displayMulti(r.die.getThrow(), r.display));
-        }
+          result.push(MODE[r.mode].displayMulti(r.die));
       }
       return result.join('&hellip; ');
     });

@@ -32,6 +32,7 @@ function letsroll(
   min?: number,
   max?: number
 ): Die {
+  const title_divider = ' | ';
   if (min === undefined) min = die.min;
   if (max === undefined) max = die.max;
   if (quantity !== undefined && quantity !== die.dice) die.dice = quantity;
@@ -41,7 +42,7 @@ function letsroll(
 
   rolls.unshift({
     label: die.toString(),
-    display: die.getThrow().map((v) => MODE[mode].displayValue(v, die.max)),
+    display: MODE[mode].displayMulti(die),
     die: die,
     mode: mode,
     time: new Date(),
@@ -49,6 +50,12 @@ function letsroll(
 
   // trim roll history
   if (rolls.length > MAX_HISTORY) rolls.pop();
+  
+  const title_divider_index = document.title.lastIndexOf(title_divider)
+  if (title_divider_index >= 0) {
+    document.title = document.title.slice(title_divider_index+title_divider.length)
+  }
+  document.title = `${rolls[0].display}${title_divider}${rolls[0].label}${title_divider}${document.title}`
 
   return newDie;
 }
@@ -276,7 +283,7 @@ export default defineComponent({
           <roll-display
             :value="v"
             :index="idx"
-            :display="lastRoll.display[idx]"
+            :display="MODE[lastRoll.mode].displayValue(lastRoll.die.getThrow()[idx], lastRoll.die.max)"
             :roll="lastRoll"
             @on-roll-display-click="bigButtonClick"
           ></roll-display></div
@@ -328,7 +335,7 @@ export default defineComponent({
     <div class="row justify-center q-pt-sm" v-if="!options?.hideHistory">
       <history-list
         :rolls="rolls"
-        @on-die-chip="(v) => handleChipClick(v)"
+        @on-die-chip="(v: rollHistoryType) => handleChipClick(v)"
       ></history-list>
     </div>
     <div class="row justify-center q-pt-sm" v-if="!options?.hideAdvanced">
@@ -339,10 +346,10 @@ export default defineComponent({
         :mode="mode"
         :ignore_hotkeys="console_active"
         :afrender="afrender"
-        @advanced-update="(v) => advancedUpdate(v)"
+        @advanced-update="(v:number[]) => advancedUpdate(v)"
         @base-toggle="handleZeroBaseToggle"
         @exclusive-toggle="() => (die.exclusive = !die.exclusive)"
-        @mode-change="(m) => handleModeChange(m)"
+        @mode-change="(m:number) => handleModeChange(m)"
       ></AdvancedForm>
     </div>
     <div class="row justify-center q-pt-md">

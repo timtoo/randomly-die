@@ -32,10 +32,7 @@ export default defineComponent({
     function handleLongPress() {
       inLongPress.value = true;
       if (props.roll) {
-        const data = MODE[props.roll.mode].displayMulti(
-          props.roll.die.getThrow(),
-          props.roll.display,
-        );
+        const data = props.roll.display;
         copyToClipboard(data)
           .then(() => {
             $q.notify({

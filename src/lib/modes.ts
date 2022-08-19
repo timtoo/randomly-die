@@ -1,3 +1,5 @@
+import {Die} from './die'
+
 export enum MODE_ID {
   default = 0,
   binary = 1,
@@ -88,26 +90,24 @@ class ModeBase {
   }
 
   // if given multiple values, how to display them? depends on if they have a number_base != 0
-  displayMulti(v: number[], display: string[]): string {
-    if (this.number_base && v.length > 1) {
-      return this._displayMultiWithTotal(v, display);
+  displayMulti(die: Die): string {
+    if (this.number_base && die.getThrow().length > 1) {
+      return this._displayMultiWithTotal(die);
     } else {
-      return this._displayMultiValsOnly(display);
+      return this._displayMultiValsOnly(die);
     }
   }
 
   // return formated total, with individual values in brackets after
-  _displayMultiWithTotal(v: number[], display: string[]): string {
-    const total = v.reduce((p, c) => p + c);
+  _displayMultiWithTotal(die: Die): string {
     // max is not needed as it is only used for mappings so is meaninless for a sum?
-    const displayTotal =
-      this.quick_label_prefix + this.displayValue(total, total);
-    return displayTotal + ' (' + this._displayMultiValsOnly(display) + ')';
+    const displayTotal = this.historyValue(die.getResult(), die.getResult());
+    return displayTotal + ' (' + this._displayMultiValsOnly(die) + ')';
   }
 
   // alternate display without total
-  _displayMultiValsOnly(display: string[]): string {
-    return display.map((s) => this.quick_label_prefix + s).join('/');
+  _displayMultiValsOnly(die: Die): string {
+    return die.getThrow().map((s) => this.historyValue(s, die.max)).join('/');
   }
 }
 
