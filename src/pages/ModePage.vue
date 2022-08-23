@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue';
 import { MODE } from 'src/lib/modes';
 </script>
 
@@ -13,7 +12,18 @@ import { MODE } from 'src/lib/modes';
             <tr>
               <td>Mode {{ val.id }}:</td>
               <td>
-                {{ val.name }}
+                <router-link
+                  :to="'/' + val.name"
+                  custom
+                  v-slot="{ navigate }"
+                  ><span
+                    @click="navigate"
+                    @keypress.enter="navigate"
+                    role="link"
+                    class="span-link"
+                    >{{ val.name }}</span
+                  ></router-link
+                >
               </td>
             </tr>
             <tr>
@@ -25,7 +35,7 @@ import { MODE } from 'src/lib/modes';
             <tr v-if="val.number_base !== 10">
               <td>Number Base:</td>
               <td>
-                {{ val.number_base }}
+                {{ val.number_base || 'Non-number' }}
               </td>
             </tr>
 
@@ -52,9 +62,10 @@ import { MODE } from 'src/lib/modes';
               <td>Mapping:</td>
               <td>
                 <table class="none">
-                  <tr v-for="(val, key) in val.mappings" :key="key">
-                  <td>{{key}}</td>
-                  <td>{{val.join(', ')}}</td></tr>
+                  <tr v-for="(v, k) in val.mappings" :key="k">
+                    <td>{{ k }}</td>
+                    <td>{{ v.join(', ') }}</td>
+                  </tr>
                 </table>
               </td>
             </tr>

@@ -5,6 +5,10 @@ body {
     color: $text-default;
 }
 
+.span-link:hover {
+  cursor: pointer;
+}
+
 .text-rrinput {
   color: $text-default !important;
 }
