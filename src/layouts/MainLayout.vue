@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useStorage } from '@vueuse/core';
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'MainLayout',
@@ -18,6 +19,7 @@ export default defineComponent({
     };
     const leftDrawerOpen = ref(false);
     const options = useStorage('options', options_default);
+    const router = useRouter()
 
     function handleReset() {
       options.value = { ...options_default };
@@ -26,6 +28,7 @@ export default defineComponent({
     return {
       options,
       leftDrawerOpen,
+      router,
       handleReset,
       toggleLeftDrawer() {
         leftDrawerOpen.value = !leftDrawerOpen.value;
@@ -36,7 +39,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <q-layout view="lHh Lpr lFf">
+  <q-layout view="lHh lpR fFf">
     <q-toolbar>
       <div class="col-1">
         <q-btn
@@ -50,13 +53,13 @@ export default defineComponent({
       </div>
 
       <q-toolbar-title class="col-stretch text-h6" style="text-align: center">
-        Randomly/Die
+        <span @click="router.push('/')">Randomly/Die</span>
       </q-toolbar-title>
 
       <div class="col-1">&nbsp;</div>
     </q-toolbar>
 
-    <q-drawer v-model="leftDrawerOpen" bordered class="rr-drawer">
+    <q-drawer show-if-above v-model="leftDrawerOpen" bordered class="rr-drawer">
       <q-list>
         <div style="float: right; vertical-align: top">
           <q-btn
@@ -110,7 +113,7 @@ export default defineComponent({
           <q-btn outline @click="handleReset">Reset</q-btn>
         </q-item>
       </q-list>
-      <router-link to="/modes">modes</router-link>
+      <q-item clickable to="/modes">modes</q-item>
     </q-drawer>
 
     <q-page-container>
