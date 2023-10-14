@@ -3,7 +3,7 @@ import { computed, defineComponent, ref, PropType } from 'vue';
 import { onLongPress } from '@vueuse/core';
 import { useQuasar, copyToClipboard } from 'quasar';
 import { rollHistoryType } from 'components/models';
-import { MODE_ID, MODE } from 'src/lib/modes';
+import { MODE_ID } from 'src/lib/modes';
 import SvgDie6 from 'components/SvgDie6.vue';
 
 export default defineComponent({
