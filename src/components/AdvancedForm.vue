@@ -131,6 +131,7 @@ export default defineComponent({
       @update:model-value="handleMinMaxDice('max')"
       :min="min + 1"
     ></InputNumber>
+    <q-tooltip :delay="1000">The lowest value and the highest value</q-tooltip>
   </div>
   <div>
     <InputNumber
@@ -144,7 +145,7 @@ export default defineComponent({
       @update:model-value="handleMinMaxDice('dice')"
       :min="1"
       :max="10"
-    ></InputNumber>
+    ></InputNumber><q-tooltip :delay="1000">Number of random numbers ("dice") to generate (shortcut: d/D)</q-tooltip>  
   </div>
   <div>
     <q-btn-dropdown
@@ -175,6 +176,7 @@ export default defineComponent({
         </template>
       </q-list></q-btn-dropdown
     >
+    <q-tooltip :delay="1000">Generator mode: types of random random things</q-tooltip>
   </div>
 
   <div>
@@ -189,6 +191,7 @@ export default defineComponent({
       @click="$emit('base-toggle')"
     >
       {{ die.zerobase ? 'Zero-based' : 'One-based' }}
+      <q-tooltip :delay="1000">Should the lowest number be zero?</q-tooltip>
     </q-btn>
     <q-btn
       dense
@@ -201,6 +204,7 @@ export default defineComponent({
       @click="$emit('exclusive-toggle')"
     >
       {{ die.exclusive ? 'Exclusive' : 'Inclusive' }}
+      <q-tooltip :delay="1000">Should the highest number be one less than specified?</q-tooltip>
     </q-btn>
   </div>
 </template>

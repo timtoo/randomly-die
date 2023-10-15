@@ -39,7 +39,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <q-layout view="lHh lpR fFf">
+  <q-layout view="lHh lpR lFf">
     <q-toolbar>
       <div class="col-1">
         <q-btn
@@ -59,7 +59,8 @@ export default defineComponent({
       <div class="col-1">&nbsp;</div>
     </q-toolbar>
 
-    <q-drawer show-if-above v-model="leftDrawerOpen" bordered class="rr-drawer">
+    <!-- left side drawer -->
+    <q-drawer v-model="leftDrawerOpen" bordered class="rr-drawer">
       <q-list>
         <div style="float: right; vertical-align: top">
           <q-btn

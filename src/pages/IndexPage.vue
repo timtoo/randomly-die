@@ -277,7 +277,7 @@ export default defineComponent({
 
 <template>
   <q-page>
-    <div class="row justify-center">
+    <div id="result-display" class="row justify-center">
       <template v-if="lastRoll"
         ><div v-for="(v, idx) in lastRoll.die.getThrow()" :key="idx">
           <roll-display
@@ -297,7 +297,7 @@ export default defineComponent({
         ></roll-display>
       </template>
     </div>
-    <div class="row justify-center items-start q-mt-sm">
+    <div id="settings-summary" class="row justify-center items-start q-mt-sm">
       <i>
         <template v-if="dice_count > 0">
           <span v-if="dice_count > 1"
@@ -318,7 +318,7 @@ export default defineComponent({
         {{ lastRoll ? lastRoll.time.toLocaleString() : '&nbsp;' }}
       </i>
     </div>
-    <div class="row justify-center q-mt-md" v-if="!options?.hideQuick">
+    <div id="quick-roll" class="row justify-center q-mt-md" v-if="!options?.hideQuick">
       <quick-buttons
         label="Quick Roll:"
         :mode="mode"
@@ -326,13 +326,13 @@ export default defineComponent({
         @on-quick-button="(v:number) => handleQuickButton(v)"
       ></quick-buttons>
     </div>
-    <div
+    <div id="previous"
       class="row justify-center items-start q-pt-sm"
       v-if="!options?.hidePrevious"
     >
       <previous-rolls :rolls="rolls"></previous-rolls>
     </div>
-    <div class="row justify-center q-pt-sm" v-if="!options?.hideHistory">
+    <div id="history" class="row justify-center q-pt-sm" v-if="!options?.hideHistory">
       <history-list
         :rolls="rolls"
         @on-die-chip="(v: rollHistoryType) => handleChipClick(v)"
