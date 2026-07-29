@@ -192,3 +192,8 @@ test('multiplication without spaces around operator', () => {
   expect(result?.dice.length).toBe(2);
   expect(result?.dice[1].die.operator).toBe(MULTIPY_CHARS[0]);
 });
+
+test('invalid operator character returns null', () => {
+  const result = parseDiceExpression('2d5 ^ 1d4', MODE_ID.dice, defaultDie);
+  expect(result).toBeNull();
+});
