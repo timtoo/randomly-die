@@ -117,7 +117,14 @@ function submitForModeChange(overrideMode: MODE_ID): boolean {
   return true;
 }
 
-defineExpose({ submitForModeChange });
+function submitValue(value: string) {
+  console_input.value = value;
+  console_error.value = '';
+  error_status.value = false;
+  onSubmit();
+}
+
+defineExpose({ submitForModeChange, submitValue });
 
 function onSubmit() {
   if (selectingMatch.value) {
@@ -166,6 +173,15 @@ function onSubmit() {
 
 function selectMatch(index: number) {
   console_input.value = effectiveItems.value[index];
+  selected_match.value = -1;
+}
+
+function toggleHistory() {
+  if (show_matches.value) {
+    show_history.value = false;
+  } else {
+    show_history.value = true;
+  }
   selected_match.value = -1;
 }
 
@@ -237,7 +253,6 @@ onUnmounted(() => {
           placeholder="Dice hacking mode enabled..."
           hint="Your dice notation console is ready to serve."
           filled
-          clearable
           autofocus
           outlined
           stack-label
@@ -250,8 +265,21 @@ onUnmounted(() => {
           input-class="text-rrinput"
         >
           <template v-slot:prepend>
-            <q-icon name="computer" color="primary" /> </template
-        ></q-input>
+            <q-icon name="computer" color="primary" />
+          </template>
+          <template v-slot:append>
+            <q-icon
+              v-if="console_input"
+              name="close"
+              class="cursor-pointer"
+              @click="console_input = ''"
+            />
+            <q-icon
+              :name="show_matches ? 'keyboard_arrow_down' : 'keyboard_arrow_up'"
+              class="cursor-pointer"
+              @click.stop="toggleHistory"
+            />
+          </template></q-input>
         <q-list
           v-show="show_matches"
           bordered
