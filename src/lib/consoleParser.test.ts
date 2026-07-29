@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { Die } from './die';
+import { Die, MULTIPY_CHARS, DIVIDE_CHARS } from './die';
 import { MODE_ID } from './modes';
 import { parseDiceExpression } from './consoleParser';
 
@@ -142,4 +142,53 @@ test('unknown words are ignored', () => {
 test('completely invalid input returns null', () => {
   const result = parseDiceExpression('foo bar', MODE_ID.dice, defaultDie);
   expect(result).toBeNull();
+});
+
+test('multiplication operator * between dice', () => {
+  const result = parseDiceExpression('2d6 * 1d4', MODE_ID.dice, defaultDie);
+  expect(result?.dice.length).toBe(2);
+  expect(result?.dice[0].die.operator).toBe('+');
+  expect(result?.dice[1].die.operator).toBe(MULTIPY_CHARS[0]);
+});
+
+test('multiplication operator × between dice', () => {
+  const result = parseDiceExpression('2d6 × 1d4', MODE_ID.dice, defaultDie);
+  expect(result?.dice.length).toBe(2);
+  expect(result?.dice[1].die.operator).toBe(MULTIPY_CHARS[0]);
+});
+
+test('multiplication operator x (lowercase) between dice', () => {
+  const result = parseDiceExpression('2d6 x 1d4', MODE_ID.dice, defaultDie);
+  expect(result?.dice.length).toBe(2);
+  expect(result?.dice[1].die.operator).toBe(MULTIPY_CHARS[0]);
+});
+
+test('division operator / between dice', () => {
+  const result = parseDiceExpression('4d6 / 2d4', MODE_ID.dice, defaultDie);
+  expect(result?.dice.length).toBe(2);
+  expect(result?.dice[1].die.operator).toBe(DIVIDE_CHARS[0]);
+});
+
+test('division operator ÷ between dice', () => {
+  const result = parseDiceExpression('4d6 ÷ 2d4', MODE_ID.dice, defaultDie);
+  expect(result?.dice.length).toBe(2);
+  expect(result?.dice[1].die.operator).toBe(DIVIDE_CHARS[0]);
+});
+
+test('mixed operators evaluate left to right', () => {
+  const result = parseDiceExpression(
+    '1d4 * 2d6 - 1d2',
+    MODE_ID.dice,
+    defaultDie,
+  );
+  expect(result?.dice.length).toBe(3);
+  expect(result?.dice[0].die.operator).toBe('+');
+  expect(result?.dice[1].die.operator).toBe(MULTIPY_CHARS[0]);
+  expect(result?.dice[2].die.operator).toBe('-');
+});
+
+test('multiplication without spaces around operator', () => {
+  const result = parseDiceExpression('2d6*1d4', MODE_ID.dice, defaultDie);
+  expect(result?.dice.length).toBe(2);
+  expect(result?.dice[1].die.operator).toBe(MULTIPY_CHARS[0]);
 });

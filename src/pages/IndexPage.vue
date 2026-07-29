@@ -73,7 +73,11 @@ function formatMultiRollChipLabel(
   entries: { die: Die; mode: MODE_ID }[],
 ): string {
   return entries
-    .map((e, i) => (i > 0 ? ' + ' : '') + e.die.toString())
+    .map((e, i) => {
+      if (i === 0) return e.die.toString();
+      const op = e.die.operator || '+';
+      return ` ${op} ${e.die.toString()}`;
+    })
     .join('');
 }
 
@@ -84,14 +88,36 @@ function formatMultiRollDisplay(
     ({ mode }) => MODE[mode].number_base !== 0,
   );
   if (numericEntries.length > 0) {
-    const grandTotal = numericEntries.reduce(
-      (sum, { die }) => sum + die.getResult(),
-      0,
-    );
+    let grandTotal = numericEntries[0].die.getResult();
+    for (let i = 1; i < numericEntries.length; i++) {
+      const val = numericEntries[i].die.getResult();
+      const op = numericEntries[i].die.operator || '+';
+      switch (op) {
+        case '+':
+          grandTotal += val;
+          break;
+        case '-':
+          grandTotal -= val;
+          break;
+        case '×':
+          grandTotal *= val;
+          break;
+        case '/':
+          grandTotal /= val;
+          break;
+      }
+    }
     const subtotals = numericEntries.map(({ die, mode }) =>
       MODE[mode].historyValue(die.getResult(), die.max, die.mod),
     );
-    return `${grandTotal.toLocaleString()} (${subtotals.join(' + ')})`;
+    const subtotalStr = subtotals
+      .map((v, i) => {
+        if (i === 0) return v;
+        const op = numericEntries[i].die.operator || '+';
+        return `${op} ${v}`;
+      })
+      .join(' ');
+    return `${grandTotal.toLocaleString()} (${subtotalStr})`;
   }
 
   const values: string[] = [];
@@ -168,7 +194,9 @@ export default defineComponent({
     const rolls = ref(_rolls);
     const lastUpdate = ref(new Date());
     const console_active = ref(false);
-    const consoleRef = ref<{ submitForModeChange: (mode: number) => boolean } | null>(null);
+    const consoleRef = ref<{
+      submitForModeChange: (mode: number) => boolean;
+    } | null>(null);
     const console_error = ref('');
     const preConsoleMode = ref(MODE_ID.default);
     const aboutDialogOpen = ref(false);
@@ -888,25 +916,26 @@ export default defineComponent({
       <!-- Settings Summary Bar -->
       <div
         class="text-center q-mt-sm rr-settings-bar row justify-center items-center q-gutter-x-sm"
-      ><template  v-if="!console_active">
-        <span
-          class="rr-settings-item cursor-pointer"
-          tabindex="0"
-          role="button"
-          aria-label="Open generator settings"
-          @click="settingsDialogOpen = true"
-          @keydown.enter="settingsDialogOpen = true"
-          @keydown.space.prevent="settingsDialogOpen = true"
-        >
-          <q-icon
-            name="expand_more"
-            size="xs"
-            class="q-mr-xs"
-            style="opacity: 0.6"
-          />
-          {{ die.getRangeString(true, ' to ') }}
-        </span>
-        <span style="color: var(--rr-text-muted)">·</span>
+      >
+        <template v-if="!console_active">
+          <span
+            class="rr-settings-item cursor-pointer"
+            tabindex="0"
+            role="button"
+            aria-label="Open generator settings"
+            @click="settingsDialogOpen = true"
+            @keydown.enter="settingsDialogOpen = true"
+            @keydown.space.prevent="settingsDialogOpen = true"
+          >
+            <q-icon
+              name="expand_more"
+              size="xs"
+              class="q-mr-xs"
+              style="opacity: 0.6"
+            />
+            {{ die.getRangeString(true, ' to ') }}
+          </span>
+          <span style="color: var(--rr-text-muted)">·</span>
         </template>
         <span
           class="rr-settings-item cursor-pointer"
@@ -938,30 +967,32 @@ export default defineComponent({
 
       <!-- Dice Quantity Stepper -->
       <div v-if="!console_active">
-      <div class="row justify-center q-mt-xs rr-quantity-stepper">
-        <q-btn
-          flat
-          dense
-          color="primary"
-          icon="remove"
-          class="text-h6"
-          aria-label="Decrease number of items"
-          @click="decrementDice"
-        />
-        <div class="rr-quantity-value text-h5 self-center">{{ die.dice }}</div>
-        <q-btn
-          flat
-          dense
-          color="primary"
-          icon="add"
-          class="text-h6"
-          aria-label="Increase number of items"
-          @click="incrementDice"
-        />
-      </div>
-      <div class="text-center text-body2" style="color: var(--rr-text-muted)">
-        Number of items
-      </div>
+        <div class="row justify-center q-mt-xs rr-quantity-stepper">
+          <q-btn
+            flat
+            dense
+            color="primary"
+            icon="remove"
+            class="text-h6"
+            aria-label="Decrease number of items"
+            @click="decrementDice"
+          />
+          <div class="rr-quantity-value text-h5 self-center">
+            {{ die.dice }}
+          </div>
+          <q-btn
+            flat
+            dense
+            color="primary"
+            icon="add"
+            class="text-h6"
+            aria-label="Increase number of items"
+            @click="incrementDice"
+          />
+        </div>
+        <div class="text-center text-body2" style="color: var(--rr-text-muted)">
+          Number of items
+        </div>
       </div>
 
       <!-- Quick Buttons -->

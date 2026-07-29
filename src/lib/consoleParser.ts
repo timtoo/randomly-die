@@ -1,4 +1,4 @@
-import { Die, DieRegExp } from './die';
+import { Die, DieRegExp, MULTIPY_CHARS, DIVIDE_CHARS } from './die';
 import { mode_by_name, MODE_ID } from './modes';
 
 export interface ParsedConsoleInput {
@@ -32,7 +32,7 @@ export function parseDiceExpression(
 
   const dice: { die: Die; mode: MODE_ID }[] = [];
   let currentMode = defaultMode;
-  let operator: '+' | '-' = '+';
+  let operator = '+';
   let pos = 0;
   let foundMode = false;
 
@@ -45,6 +45,22 @@ export function parseDiceExpression(
 
     if (pos >= text.length) break;
 
+    if (text[pos] === '+' || text[pos] === '-') {
+      operator = text[pos];
+      pos++;
+      continue;
+    }
+    if (MULTIPY_CHARS.includes(text[pos])) {
+      operator = MULTIPY_CHARS[0];
+      pos++;
+      continue;
+    }
+    if (DIVIDE_CHARS.includes(text[pos])) {
+      operator = DIVIDE_CHARS[0];
+      pos++;
+      continue;
+    }
+
     const wordMatch = text.slice(pos).match(/^[A-Za-z]+(?![0-9])/);
     if (wordMatch) {
       const word = wordMatch[0];
@@ -54,12 +70,6 @@ export function parseDiceExpression(
         currentMode = mode.id;
         foundMode = true;
       }
-      continue;
-    }
-
-    if (text[pos] === '+' || text[pos] === '-') {
-      operator = text[pos] as '+' | '-';
-      pos++;
       continue;
     }
 
