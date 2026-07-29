@@ -196,6 +196,7 @@ export default defineComponent({
     const console_active = ref(false);
     const consoleRef = ref<{
       submitForModeChange: (mode: number) => boolean;
+      submitValue: (value: string) => void;
     } | null>(null);
     const console_error = ref('');
     const preConsoleMode = ref(MODE_ID.default);
@@ -501,6 +502,12 @@ export default defineComponent({
     }
 
     function handleQuickButton(v: number) {
+      if (console_active.value) {
+        const tmp = die.value.clone();
+        MODE[mode.value].configureDie(tmp, v);
+        consoleRef.value?.submitValue(tmp.toString());
+        return;
+      }
       MODE[mode.value].configureDie(die.value, v);
       clearMultiDice();
       saveModeNotation();
@@ -571,6 +578,10 @@ export default defineComponent({
     }
 
     function handleChipClick(v: rollHistoryType) {
+      if (console_active.value) {
+        consoleRef.value?.submitValue(v.label);
+        return;
+      }
       if (v.isMulti && v.dice.length > 1) {
         setMultiDice(v.dice.map((e) => ({ die: e.die.clone(), mode: e.mode })));
       } else {
