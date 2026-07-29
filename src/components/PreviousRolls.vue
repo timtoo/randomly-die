@@ -79,14 +79,36 @@ export default defineComponent({
         ({ die, mode }) => MODE[mode].number_base !== 0,
       );
       if (numericEntries.length > 0) {
-        const grandTotal = numericEntries.reduce(
-          (sum, { die }) => sum + die.getResult(),
-          0,
-        );
+        let grandTotal = numericEntries[0].die.getResult();
+        for (let i = 1; i < numericEntries.length; i++) {
+          const val = numericEntries[i].die.getResult();
+          const op = numericEntries[i].die.operator || '+';
+          switch (op) {
+            case '+':
+              grandTotal += val;
+              break;
+            case '-':
+              grandTotal -= val;
+              break;
+            case '×':
+              grandTotal *= val;
+              break;
+            case '/':
+              grandTotal /= val;
+              break;
+          }
+        }
         const subtotals = numericEntries.map(({ die, mode }) =>
           MODE[mode].historyValue(die.getResult(), die.max, die.mod),
         );
-        return `${grandTotal.toLocaleString()} (${subtotals.join(' + ')})`;
+        const subtotalStr = subtotals
+          .map((v, i) => {
+            if (i === 0) return v;
+            const op = numericEntries[i].die.operator || '+';
+            return `${op} ${v}`;
+          })
+          .join(' ');
+        return `${grandTotal.toLocaleString()} (${subtotalStr})`;
       }
 
       // Non-numeric multi-roll: concatenate individual values

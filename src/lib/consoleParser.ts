@@ -35,6 +35,7 @@ export function parseDiceExpression(
   let operator = '+';
   let pos = 0;
   let foundMode = false;
+  let invalidToken = false;
 
   const skipWhitespace = () => {
     while (pos < text.length && /\s/.test(text[pos])) pos++;
@@ -74,7 +75,7 @@ export function parseDiceExpression(
     }
 
     const remaining = text.slice(pos);
-    const match = new RegExp(DieRegExp.source).exec(remaining);
+    const match = new RegExp(DieRegExp.source, 'y').exec(remaining);
     if (match) {
       const die = new Die(match[0]);
       die.operator = operator;
@@ -84,8 +85,11 @@ export function parseDiceExpression(
       continue;
     }
 
+    invalidToken = true;
     pos++;
   }
+
+  if (invalidToken) return null;
 
   if (dice.length === 0) {
     if (foundMode) {
