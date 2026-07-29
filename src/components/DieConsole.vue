@@ -88,6 +88,37 @@ watch(console_input, () => {
   }
 });
 
+function submitForModeChange(overrideMode: MODE_ID): boolean {
+  const result = parseDiceExpression(
+    console_input.value,
+    props.mode,
+    props.die,
+  );
+  if (!result) {
+    console_error.value = 'Invalid dice format. Try something like: dice 3d6.';
+    return false;
+  }
+  console_error.value = '';
+
+  const raw = inputValue.value;
+  if (raw) {
+    const idx = console_history.value.indexOf(raw);
+    if (idx >= 0) console_history.value.splice(idx, 1);
+    console_history.value.unshift(raw);
+    if (console_history.value.length > 50) console_history.value.pop();
+  }
+
+  emit('submit', {
+    label: console_input.value,
+    mode: overrideMode,
+    dice: result.dice.map((e) => ({ die: e.die, mode: overrideMode })),
+    time: new Date(),
+  });
+  return true;
+}
+
+defineExpose({ submitForModeChange });
+
 function onSubmit() {
   if (selectingMatch.value) {
     console_input.value = effectiveItems.value[selected_match.value];

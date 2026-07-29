@@ -168,6 +168,7 @@ export default defineComponent({
     const rolls = ref(_rolls);
     const lastUpdate = ref(new Date());
     const console_active = ref(false);
+    const consoleRef = ref<{ submitForModeChange: (mode: number) => boolean } | null>(null);
     const console_error = ref('');
     const preConsoleMode = ref(MODE_ID.default);
     const aboutDialogOpen = ref(false);
@@ -557,6 +558,13 @@ export default defineComponent({
       if (m != mode.value) {
         const new_mode = MODE[m];
         if (new_mode) {
+          if (console_active.value) {
+            if (MODE[m].number_base === 0) {
+              console_active.value = false;
+            } else {
+              if (consoleRef.value?.submitForModeChange(m)) return;
+            }
+          }
           const storedNotation = lastNotationPerMode.value[m];
           let restored = false;
           if (storedNotation) {
@@ -770,6 +778,7 @@ export default defineComponent({
       formatMultiRollChipLabel,
       afrender,
       aboutDialogOpen,
+      consoleRef,
       console_active,
       console_error,
       preConsoleMode,
@@ -821,7 +830,7 @@ export default defineComponent({
       >
         <template v-if="lastRoll">
           <div
-            v-for="item in displayItems"
+            v-for="(item, i) in displayItems"
             :key="
               lastRoll.time.getTime() +
               '-' +
@@ -832,6 +841,11 @@ export default defineComponent({
               item.index +
               '-' +
               item.mode
+            "
+            :style="
+              i > 0 && item.entryIndex !== displayItems[i - 1].entryIndex
+                ? { marginLeft: `${displayScale}rem` }
+                : {}
             "
           >
             <roll-display
@@ -874,7 +888,7 @@ export default defineComponent({
       <!-- Settings Summary Bar -->
       <div
         class="text-center q-mt-sm rr-settings-bar row justify-center items-center q-gutter-x-sm"
-      >
+      ><template  v-if="!console_active">
         <span
           class="rr-settings-item cursor-pointer"
           tabindex="0"
@@ -893,6 +907,7 @@ export default defineComponent({
           {{ die.getRangeString(true, ' to ') }}
         </span>
         <span style="color: var(--rr-text-muted)">·</span>
+        </template>
         <span
           class="rr-settings-item cursor-pointer"
           tabindex="0"
@@ -922,7 +937,8 @@ export default defineComponent({
       </div>
 
       <!-- Dice Quantity Stepper -->
-      <div class="row justify-center q-mt-lg rr-quantity-stepper">
+      <div v-if="!console_active">
+      <div class="row justify-center q-mt-xs rr-quantity-stepper">
         <q-btn
           flat
           dense
@@ -945,6 +961,7 @@ export default defineComponent({
       </div>
       <div class="text-center text-body2" style="color: var(--rr-text-muted)">
         Number of items
+      </div>
       </div>
 
       <!-- Quick Buttons -->
@@ -1145,6 +1162,7 @@ export default defineComponent({
 
       <!-- Console -->
       <DieConsole
+        ref="consoleRef"
         :active="console_active"
         :history="rolls"
         :die="die"

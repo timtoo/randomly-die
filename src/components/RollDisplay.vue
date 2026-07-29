@@ -126,6 +126,7 @@ export default defineComponent({
     });
 
     const isSingleResult = computed(() => {
+      if (props.roll?.isMulti) return false;
       const die = effectiveDie.value;
       return die ? die.getThrow().length === 1 : false;
     });
