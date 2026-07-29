@@ -138,6 +138,7 @@ export default defineComponent({
       fontSize: `${(isSingleResult.value ? 3.75 : 3) * props.scale}rem`,
       backgroundColor: sparkleBg.value,
       '--rr-glow-color': sparkleGlow.value || 'transparent',
+      lineHeight: 'normal',
     }));
 
     const svgHeight = computed(() => `${6 * props.scale}rem`);
