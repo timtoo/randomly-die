@@ -1,5 +1,18 @@
 # Changelog
 
+## 6.5.0 (2026-07-29) — draft
+
+### Dice engine & console
+- New console parser supporting multi-dice expressions with per-die modes and operators (e.g. `2d6+1d8`, `4x(3d6+2)`).
+- Persistent, substring-matched console input history with a compact history view.
+- Improved URL routing for mode lists and comma-separated modes.
+
+### UI/UX
+- Generator settings now support repeats and multipliers; roll results display multipliers, modifiers, and division correctly.
+- Dynamic roll display scaling so more dice fit on screen, plus a new result scale slider in settings.
+- Dice notation shown as the advanced dialog title.
+- Various formatting and visual fixes for history, negative modifiers, and console errors.
+
 ## 6.1.1 (2026-07-15)
 
 - Pin pnpm via Corepack and packageManager field for reproducible F-Droid builds.
