@@ -1,0 +1,6 @@
+New console parser supports multi-dice expressions with per-die modes and operators (e.g. 2d6+1d8, 4x(3d6+2)).
+Persistent, substring-matched console input history with compact history view.
+Generator settings support repeats and multipliers; results display multipliers, modifiers, and division correctly.
+Dynamic roll display scaling plus result scale slider.
+Cleaner URL routing and fixes for comma-separated mode lists.
+UI/formatting fixes for history, negative modifiers, and console errors.
