@@ -1,6 +1,17 @@
 <script lang="ts">
-import { computed, defineComponent, ref, onMounted, watch } from 'vue';
+import {
+  computed,
+  defineComponent,
+  ref,
+  onMounted,
+  onUnmounted,
+  watch,
+} from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { Platform } from 'quasar';
+import { App } from '@capacitor/app';
+import type { BackButtonListenerEvent } from '@capacitor/app';
+import type { PluginListenerHandle } from '@capacitor/core';
 import { rollHistoryType, consoleSubmitType } from 'src/lib/models';
 import { MODE_ID, MODE, mode_by_name } from 'src/lib/modes';
 import { Die } from 'src/lib/die';
@@ -431,6 +442,9 @@ export default defineComponent({
       }
     }
 
+    let backButtonHandle: PluginListenerHandle | null = null;
+    let backButtonReady: Promise<PluginListenerHandle> | null = null;
+
     onMounted(() => {
       handleURLChange();
       const storedNotation = lastNotationPerMode.value[mode.value];
@@ -444,6 +458,30 @@ export default defineComponent({
       if (props.options?.rollOnStart) {
         bigButtonClick();
       }
+
+      if (Platform.is.capacitor) {
+        backButtonReady = App.addListener(
+          'backButton',
+          (e: BackButtonListenerEvent) => {
+            if (console_active.value) {
+              closeConsole();
+            } else if (e.canGoBack) {
+              window.history.back();
+            } else {
+              void App.exitApp();
+            }
+          },
+        );
+        backButtonReady.then((handle) => {
+          backButtonHandle = handle;
+        });
+      }
+    });
+
+    onUnmounted(() => {
+      backButtonReady?.then((handle) => {
+        void handle.remove();
+      });
     });
 
     function updateURL(replace = true) {

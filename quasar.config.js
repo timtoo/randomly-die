@@ -24,9 +24,7 @@ export default defineConfig(function (/* ctx */) {
     if (sourceDateEpoch) {
       buildTimestamp = new Date(sourceDateEpoch * 1000).toISOString();
     } else {
-      buildTimestamp = execSync('git log -1 --format=%cI')
-        .toString()
-        .trim();
+      buildTimestamp = execSync('git log -1 --format=%cI').toString().trim();
     }
   } catch (e) {
     console.warn('Could not retrieve git metadata for deterministic build');
@@ -198,6 +196,7 @@ export default defineConfig(function (/* ctx */) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-capacitor-apps/configuring-capacitor
     capacitor: {
       hideSplashscreen: true,
+      backButton: false,
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/configuring-electron
